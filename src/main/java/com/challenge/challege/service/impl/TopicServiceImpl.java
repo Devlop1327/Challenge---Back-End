@@ -45,6 +45,27 @@ public class TopicServiceImpl implements TopicService {
         return toDTO(t);
     }
 
+    @Override
+    public TopicDTO updateTopic(Long id, CreateTopicDTO dto, String username) {
+        Topic existing = topicRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Topic not found"));
+        if (existing.getAuthor() == null || !existing.getAuthor().getUsername().equals(username)) {
+            throw new IllegalArgumentException("Only the author can update the topic");
+        }
+        existing.setTitle(dto.getTitle());
+        existing.setDescription(dto.getDescription());
+        Topic saved = topicRepository.save(existing);
+        return toDTO(saved);
+    }
+
+    @Override
+    public void deleteTopic(Long id, String username) {
+        Topic existing = topicRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Topic not found"));
+        if (existing.getAuthor() == null || !existing.getAuthor().getUsername().equals(username)) {
+            throw new IllegalArgumentException("Only the author can delete the topic");
+        }
+        topicRepository.delete(existing);
+    }
+
     private TopicDTO toDTO(Topic topic) {
         TopicDTO dto = new TopicDTO();
         dto.setId(topic.getId());

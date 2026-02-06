@@ -10,6 +10,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/api/topics")
@@ -29,12 +32,27 @@ public class TopicController {
     public ResponseEntity<TopicDTO> create(@Valid @RequestBody CreateTopicDTO dto, Authentication authentication) {
         String username = authentication.getName();
         TopicDTO created = topicService.createTopic(dto, username);
-        return ResponseEntity.status(201).body(created);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(created.getId()).toUri();
+        return ResponseEntity.created(location).body(created);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<TopicDTO> get(@PathVariable Long id) {
         TopicDTO topic = topicService.getTopic(id);
         return ResponseEntity.ok(topic);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<TopicDTO> update(@PathVariable Long id, @Valid @RequestBody CreateTopicDTO dto, Authentication authentication) {
+        String username = authentication.getName();
+        TopicDTO updated = topicService.updateTopic(id, dto, username);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id, Authentication authentication) {
+        String username = authentication.getName();
+        topicService.deleteTopic(id, username);
+        return ResponseEntity.noContent().build();
     }
 }

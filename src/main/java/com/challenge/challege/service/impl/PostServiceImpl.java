@@ -45,6 +45,27 @@ public class PostServiceImpl implements PostService {
         return postRepository.findByTopicId(topicId, pageable).map(this::toDTO);
     }
 
+    @Override
+    public PostDTO updatePost(Long postId, CreatePostDTO dto, String username) {
+        Post existing = postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Post not found"));
+        if (existing.getAuthor() == null || !existing.getAuthor().getUsername().equals(username)) {
+            throw new IllegalArgumentException("Only the author can update the post");
+        }
+        existing.setContent(dto.getContent());
+        existing.setEdited(true);
+        Post saved = postRepository.save(existing);
+        return toDTO(saved);
+    }
+
+    @Override
+    public void deletePost(Long postId, String username) {
+        Post existing = postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Post not found"));
+        if (existing.getAuthor() == null || !existing.getAuthor().getUsername().equals(username)) {
+            throw new IllegalArgumentException("Only the author can delete the post");
+        }
+        postRepository.delete(existing);
+    }
+
     private PostDTO toDTO(Post post) {
         PostDTO dto = new PostDTO();
         dto.setId(post.getId());

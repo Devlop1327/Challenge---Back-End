@@ -9,4 +9,6 @@ public interface TopicService {
     TopicDTO createTopic(CreateTopicDTO dto, String username);
     Page<TopicDTO> listTopics(Pageable pageable);
     TopicDTO getTopic(Long id);
+    TopicDTO updateTopic(Long id, CreateTopicDTO dto, String username);
+    void deleteTopic(Long id, String username);
 }

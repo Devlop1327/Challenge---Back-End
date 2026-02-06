@@ -11,6 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/api/topics/{topicId}/posts")
@@ -35,6 +38,27 @@ public class PostController {
         }
         String username = authentication.getName();
         PostDTO created = postService.addPost(topicId, dto, username);
-        return ResponseEntity.status(201).body(created);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(created.getId()).toUri();
+        return ResponseEntity.created(location).body(created);
+    }
+
+    @PutMapping("/{postId}")
+    public ResponseEntity<PostDTO> update(@PathVariable Long topicId, @PathVariable Long postId, @Valid @RequestBody CreatePostDTO dto, Authentication authentication) {
+        if (authentication == null || authentication.getName() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        String username = authentication.getName();
+        PostDTO updated = postService.updatePost(postId, dto, username);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> delete(@PathVariable Long topicId, @PathVariable Long postId, Authentication authentication) {
+        if (authentication == null || authentication.getName() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        String username = authentication.getName();
+        postService.deletePost(postId, username);
+        return ResponseEntity.noContent().build();
     }
 }

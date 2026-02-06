@@ -8,4 +8,6 @@ import org.springframework.data.domain.Pageable;
 public interface PostService {
     PostDTO addPost(Long topicId, CreatePostDTO dto, String username);
     Page<PostDTO> listPostsByTopic(Long topicId, Pageable pageable);
+    PostDTO updatePost(Long postId, CreatePostDTO dto, String username);
+    void deletePost(Long postId, String username);
 }
